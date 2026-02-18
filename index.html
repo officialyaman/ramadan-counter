@@ -3,87 +3,131 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#118C4F" />
   <title>Ramadan Tracker</title>
+
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
-  <header class="header">
-    <div>
-      <h1>Ramadan Tracker</h1>
-      <p class="sub">Daily worship log (works offline • saves on your phone)</p>
+  <header class="topbar">
+    <div class="brand">
+      <div class="title">RAMADAN TRACKER</div>
+      <div class="monthline">
+        <span class="label">MONTH OF:</span>
+        <span id="monthText" class="monthText">1447 Ramadan</span>
+      </div>
     </div>
-    <div class="header-actions">
-      <button id="exportBtn" class="btn secondary">Export</button>
-      <label class="btn secondary file">
-        Import
-        <input id="importInput" type="file" accept="application/json" />
-      </label>
-      <button id="resetBtn" class="btn danger">Reset</button>
+
+    <div class="topbarRight">
+      <div class="monthPick">
+        <label for="monthStart" class="miniLabel">Start date</label>
+        <input id="monthStart" type="date" />
+        <button id="loadBtn" class="btn ghost">Load 30 days</button>
+      </div>
+
+      <div id="authArea" class="authArea">
+        <button class="linkBtn" id="signInBtn">Sign In</button>
+        <button class="linkBtn" id="signUpBtn">Sign Up</button>
+      </div>
+
+      <div id="userArea" class="userArea" style="display:none;">
+        <span id="helloUser" class="helloUser"></span>
+        <button id="logoutBtn" class="linkBtn">Log out</button>
+      </div>
     </div>
   </header>
 
-  <main class="container">
-    <section class="card">
-      <div class="row">
-        <div>
-          <h2>Day</h2>
-          <p class="muted" id="dayLabel"></p>
+  <main class="wrap">
+    <div class="sheetCard">
+      <div class="sheetHeader">
+        <div class="sheetHeaderCell">
+          <div class="smallMuted">1447 Ramadan</div>
+          <div class="big">Rak'at Prayed</div>
         </div>
-        <div class="row gap">
-          <button id="prevDay" class="btn secondary">◀</button>
-          <button id="todayBtn" class="btn secondary">Today</button>
-          <button id="nextDay" class="btn secondary">▶</button>
+        <div class="sheetHeaderCell">
+          <div class="smallMuted">1447 Ramadan</div>
+          <div class="big">VIP Rows</div>
         </div>
-      </div>
-
-      <div class="grid">
-        <div class="block">
-          <h3>🕌 Prayer Quality</h3>
-          <div class="checks" id="prayerChecks"></div>
+        <div class="sheetHeaderCell">
+          <div class="smallMuted">1447 Ramadan</div>
+          <div class="big">Takbeerat Al-Ihram</div>
         </div>
-
-        <div class="block">
-          <h3>🌙 Taraweeh</h3>
-          <div class="checks" id="taraweehChecks"></div>
+        <div class="sheetHeaderCell">
+          <div class="smallMuted">1447 Ramadan</div>
+          <div class="big">Tasbeehat</div>
         </div>
-
-        <div class="block">
-          <h3>📖 Qur’an</h3>
-          <div class="counters" id="quranCounters"></div>
+        <div class="sheetHeaderCell">
+          <div class="smallMuted">1447 Ramadan</div>
+          <div class="big">Quran</div>
         </div>
-
-        <div class="block">
-          <h3>📿 Dhikr</h3>
-          <div class="counters" id="dhikrCounters"></div>
-        </div>
-
-        <div class="block full">
-          <h3>📝 Notes</h3>
-          <textarea id="notes" placeholder="Anything you want to remember (dua, feelings, wins, etc.)"></textarea>
+        <div class="sheetHeaderCell">
+          <div class="smallMuted">1447 Ramadan</div>
+          <div class="big">Prayer Mood</div>
         </div>
       </div>
-    </section>
 
-    <section class="card">
-      <div class="row">
-        <div>
-          <h2>Month Summary</h2>
-          <p class="muted">Auto-calculated from your daily logs</p>
+      <div class="sheet">
+        <div class="tableWrap">
+          <table class="sheetTable">
+            <thead>
+              <tr>
+                <th class="dateCol">Date</th>
+                <th>Rak'at</th>
+                <th>VIP</th>
+                <th>Takbeer</th>
+                <th>Tasbeehat (Sub/Hamd/Takbir/Tahlil/Ist/Sal)</th>
+                <th>Quran pages</th>
+                <th>Mood</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+
+          <div class="statusRow">
+            <span id="statusText" class="statusText">Not signed in.</span>
+            <span id="saveDot" class="saveDot idle"></span>
+          </div>
         </div>
-        <button id="recalcBtn" class="btn secondary">Recalculate</button>
+
+        <div class="bottomNotes">
+          <div class="notesBox">
+            <div class="redTitle">NOTES:</div>
+            <textarea id="notesGlobal" placeholder="General notes for the month..."></textarea>
+          </div>
+
+          <div class="todoBox">
+            <div class="redTitle">TO DO:</div>
+            <textarea id="todoGlobal" placeholder="To-do list..."></textarea>
+          </div>
+        </div>
       </div>
-
-      <div class="summary" id="summary"></div>
-    </section>
-
-    <footer class="footer muted">
-      Tip: On iPhone/Android, open this site → Share → “Add to Home Screen” to use it like an app.
-    </footer>
+    </div>
   </main>
 
+  <!-- AUTH MODAL -->
+  <div class="modal" id="authModal" style="display:none;">
+    <div class="modalCard">
+      <h2 id="authTitle">Sign In</h2>
+
+      <input id="authEmail" type="email" placeholder="Email" autocomplete="email" />
+      <input id="authPass" type="password" placeholder="Password" autocomplete="current-password" />
+
+      <div class="modalActions">
+        <button class="btn ghost" id="closeAuth">Cancel</button>
+        <button class="btn" id="submitAuth">Continue</button>
+      </div>
+
+      <p class="muted" id="authMsg"></p>
+    </div>
+  </div>
+
   <script src="app.js"></script>
+
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./service-worker.js");
