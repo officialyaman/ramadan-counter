@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Ramadan Tracker</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="header">
+    <div>
+      <h1>Ramadan Tracker</h1>
+      <p class="sub">Daily worship log (works offline • saves on your phone)</p>
+    </div>
+    <div class="header-actions">
+      <button id="exportBtn" class="btn secondary">Export</button>
+      <label class="btn secondary file">
+        Import
+        <input id="importInput" type="file" accept="application/json" />
+      </label>
+      <button id="resetBtn" class="btn danger">Reset</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <div class="row">
+        <div>
+          <h2>Day</h2>
+          <p class="muted" id="dayLabel"></p>
+        </div>
+        <div class="row gap">
+          <button id="prevDay" class="btn secondary">◀</button>
+          <button id="todayBtn" class="btn secondary">Today</button>
+          <button id="nextDay" class="btn secondary">▶</button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="block">
+          <h3>🕌 Prayer Quality</h3>
+          <div class="checks" id="prayerChecks"></div>
+        </div>
+
+        <div class="block">
+          <h3>🌙 Taraweeh</h3>
+          <div class="checks" id="taraweehChecks"></div>
+        </div>
+
+        <div class="block">
+          <h3>📖 Qur’an</h3>
+          <div class="counters" id="quranCounters"></div>
+        </div>
+
+        <div class="block">
+          <h3>📿 Dhikr</h3>
+          <div class="counters" id="dhikrCounters"></div>
+        </div>
+
+        <div class="block full">
+          <h3>📝 Notes</h3>
+          <textarea id="notes" placeholder="Anything you want to remember (dua, feelings, wins, etc.)"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <div>
+          <h2>Month Summary</h2>
+          <p class="muted">Auto-calculated from your daily logs</p>
+        </div>
+        <button id="recalcBtn" class="btn secondary">Recalculate</button>
+      </div>
+
+      <div class="summary" id="summary"></div>
+    </section>
+
+    <footer class="footer muted">
+      Tip: On iPhone/Android, open this site → Share → “Add to Home Screen” to use it like an app.
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./service-worker.js");
+    }
+  </script>
+</body>
+</html>
